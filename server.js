@@ -90,7 +90,7 @@ function createEmployee() {
       name:"manager",
       type: "list",
       message: "What is your manager ID?",
-      choices: ["3"]
+      choices: ["0", "3"]
     },
   ])
   .then(function(answer){
@@ -218,7 +218,7 @@ function departmentSearch() {
     })
   }
 
-  function roleSearch() {
+function roleSearch() {
     var query = connection.query("SELECT * FROM role INNER JOIN employee ON role.id = employee.id", function(err, res){
       if (err) throw err;
       console.log(query.sql); 
@@ -240,8 +240,23 @@ function departmentSearch() {
     
 
     function updateRole() {
-      console.log("Updating employee...\n");
-      var query = connection.query("UPDATE "
+      console.log("Updating role...\n");
+      var query = connection.query("UPDATE role SET ? WHERE ?", function(err, res){
+        if (err) throw err;
+        console.log(query.sql); 
+        for (var i=0; i < res.length; i++) {
+            console.table([
+              {
+              Id:  res[i].id,
+              Title: res[i].title,
+              Salary: res[i].salary, 
+              DepartmentId: res[i].department_id
+        }
 
-      )
-    }
+      ]);
+        console.log("------------------------------------------------")
+  };
+  runemployeeTracker();
+    })
+  }
+    
