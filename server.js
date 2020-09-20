@@ -1,8 +1,10 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
+const { connect } = require("http2");
 const Table = require("console.table");
+const { title } = require("process");
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: "localhost",
 
   // Your port; if not 3306
@@ -18,12 +20,9 @@ var connection = mysql.createConnection({
 
 
 connection.connect(function(err){
-  if (err) {
-    console.error('error connecting: ' + err.stack);
-    return;
-  }
-  console.log("connected as id " + connection.threadId);
+  if (err);
   runemployeeTracker();
+  
 });
 
 function runemployeeTracker() {
@@ -35,7 +34,7 @@ function runemployeeTracker() {
     choices: [
       "Add an Employee",
       "Add a Role",
-      "Add Department",
+      "Add a Department",
       "View all Employees",
       "View all Employees by Department",
       "View all Employees by Role",
@@ -91,7 +90,7 @@ function createEmployee() {
       name:"manager",
       type: "list",
       message: "What is your manager ID?",
-      choices: ["3", "null"]
+      choices: ["3"]
     },
   ])
   .then(function(answer){
@@ -104,7 +103,7 @@ function createEmployee() {
         manager_id: answer.manager
       },
       function(err) {
-        if (err) throw err;
+        if (err)throw err;
         console.log("Employee was added!");
         runemployeeTracker();
       }
@@ -147,7 +146,7 @@ function addRole() {
       department_id: answer.departmentID
     },
     function(err) {
-      if (err) throw err;
+      if (err);
       runemployeeTracker();
     }
   );
@@ -163,15 +162,14 @@ function addDepartment() {
       message: "What is your department name?"
     }
   ])
-    .then(function(answer){
-      console.log("Adding a department...\n" );
-     var query = connection.query("INSERT INTO department SET ?",
+  .then(function(answer){
+    console.log("Adding a department...\n" );
+    connection.query("INSERT INTO department SET ?",
     {
-      name: answer.add,
+      name: answer.add
     },
     function(err) {
-      if (err) throw err;
-      console.log("Department was added!");
+      if (err);
       runemployeeTracker();
     }
   );
@@ -179,19 +177,71 @@ function addDepartment() {
 }
 
 function searchEmployee() {
- connection.query("SELECT * FROM employee ORDER BY last_name DESC ", function(err, res) {
-    if (err);
-    // logs the actual query being run
+  var query = connection.query("SELECT * FROM employee", function(err, res){
+    if (err) throw err;
     console.log(query.sql);
-    for (var i = 0; i < result.length; i++) {
-      console.log("First Name: " + result[i].first_name + " || Last name: " + result[i].last_name + "|| Role Id: " + result[i].role_id + " || Manager Id: " + result[i].manager_id);
+    for (var i=0; i < res.length; i++) {
+        console.table([
+          {
+          Id:  res[i].id,
+          FirstName: res[i].first_name, 
+          LastName: res[i].last_name, 
+          RoleId: res[i].role_id ,
+          ManagerId: res[i].manager_id
     }
-    console.log("-----------------------------------");
-  });
-  connection.end();
+  ]);
+    console.log("------------------------------------------------")
+
+};
+runemployeeTracker();
+  })
 }
 
+function departmentSearch() {
+      var query = connection.query("SELECT * FROM department INNER JOIN employee ON department.id = employee.id", function(err, res){
+      if (err) throw err;
+      console.log(query.sql); 
+      for (var i=0; i < res.length; i++) {
+          console.table([
+            {
+            Id:  res[i].id,
+            DepartmentName: res[i].name,
+            FirstName: res[i].first_name, 
+            LastName: res[i].last_name, 
+            RoleId: res[i].role_id ,
+            ManagerId: res[i].manager_id
+      }
+    ]);
+      console.log("-------------------------------------------------------")
+  };
+  runemployeeTracker();
+    })
+  }
 
+  function roleSearch() {
+    var query = connection.query("SELECT * FROM role INNER JOIN employee ON role.id = employee.id", function(err, res){
+      if (err) throw err;
+      console.log(query.sql); 
+      for (var i=0; i < res.length; i++) {
+          console.table([
+            {
+            Id:  res[i].id,
+            Title: res[i].title,
+            Salary: res[i].salary, 
+            DepartmentId: res[i].department_id
+      }
+    ]);
+      console.log("------------------------------------------------")
+  };
+  runemployeeTracker();
+    })
+  }
+    
+    
 
+    function updateRole() {
+      console.log("Updating employee...\n");
+      var query = connection.query("UPDATE "
 
-
+      )
+    }
